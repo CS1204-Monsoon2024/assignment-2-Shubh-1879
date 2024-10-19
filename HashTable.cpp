@@ -32,6 +32,7 @@ private:
         return key % size;
     }
 
+    //dynamic resizing
     void resize() {
         int oldSize = size;
         std::vector<int> oldTable = table;
@@ -40,6 +41,7 @@ private:
         table = std::vector<int>(size, EMPTY);
         count = 0;
 
+    
         for (int i = 0; i < oldSize; i++) {
             if (oldTable[i] != EMPTY && oldTable[i] != DELETED) {
                 insert(oldTable[i]);
@@ -52,7 +54,7 @@ public:
         : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) { 
         size = nextPrime(initialSize);  
         table = std::vector<int>(size, EMPTY);  
-        count = 0;
+        count = 0;  //no elements inserted 
     }
 
     void insert(int key) {
@@ -62,22 +64,13 @@ public:
 
         int idx = hashFunction(key);
         int i = 0;
-        int firstDeletedIdx = -1; // Track the first DELETED slot found
 
-        while (i < size) {
+        while (i < size) {  // Allow probing up to the full size of the table
             int probeIdx = (idx + i * i) % size;
-            if (table[probeIdx] == EMPTY) {
-                if (firstDeletedIdx != -1) { 
-                    table[firstDeletedIdx] = key; 
-                } else {
-                    table[probeIdx] = key;
-                }
+            if (table[probeIdx] == EMPTY || table[probeIdx] == DELETED) {
+                table[probeIdx] = key;
                 count++;
                 return;
-            } else if (table[probeIdx] == DELETED) {
-                if (firstDeletedIdx == -1) {
-                    firstDeletedIdx = probeIdx;
-                }
             } else if (table[probeIdx] == key) {
                 std::cout << "Duplicate key insertion is not allowed" << std::endl;
                 return;
@@ -85,9 +78,11 @@ public:
             i++;
         }
 
+        // If we exhaust all attempts to insert
         std::cout << "Max probing limit reached!" << std::endl;
     }
 
+    // Search function
     int search(int key) {
         int idx = hashFunction(key);
         int i = 0;
@@ -101,9 +96,10 @@ public:
             }
             i++;
         }
-        return -1;
+        return -1;  
     }
 
+    // Remove function
     void remove(int key) {
         int idx = search(key);
         if (idx == -1) {
@@ -114,6 +110,7 @@ public:
         count--;
     }
 
+    // Print the hash table
     void printTable() {
         for (int i = 0; i < size; i++) {
             if (table[i] == EMPTY || table[i] == DELETED) {
