@@ -62,13 +62,22 @@ public:
 
         int idx = hashFunction(key);
         int i = 0;
+        int firstDeletedIdx = -1; // Track the first DELETED slot found
 
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
-            if (table[probeIdx] == EMPTY || table[probeIdx] == DELETED) {
-                table[probeIdx] = key;
+            if (table[probeIdx] == EMPTY) {
+                if (firstDeletedIdx != -1) { 
+                    table[firstDeletedIdx] = key; 
+                } else {
+                    table[probeIdx] = key;
+                }
                 count++;
                 return;
+            } else if (table[probeIdx] == DELETED) {
+                if (firstDeletedIdx == -1) {
+                    firstDeletedIdx = probeIdx;
+                }
             } else if (table[probeIdx] == key) {
                 std::cout << "Duplicate key insertion is not allowed" << std::endl;
                 return;
