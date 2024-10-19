@@ -5,9 +5,8 @@
 class HashTable {
 private:
     std::vector<int> table;     
-    std::vector<int> values; // To store corresponding values
     int size;                   
-    int count;                  
+    int count;                 
     int EMPTY;            
     int DELETED;          
     double loadFactorThreshold; 
@@ -36,15 +35,14 @@ private:
     void resize() {
         int oldSize = size;
         std::vector<int> oldTable = table;
-        std::vector<int> oldValues = values;
+
         size = nextPrime(2 * oldSize);
         table = std::vector<int>(size, EMPTY);
-        values = std::vector<int>(size, 0); // Initialize values
         count = 0;
 
         for (int i = 0; i < oldSize; i++) {
             if (oldTable[i] != EMPTY && oldTable[i] != DELETED) {
-                insert(oldTable[i], oldValues[i]); // Reinsert old keys and values
+                insert(oldTable[i]);
             }
         }
     }
@@ -54,61 +52,57 @@ public:
         : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) { 
         size = nextPrime(initialSize);  
         table = std::vector<int>(size, EMPTY);  
-        values = std::vector<int>(size, 0); // Initialize values
-        count = 0;  
+        count = 0;
     }
 
-    void insert(int key, int value) {
+    void insert(int key) {
         if ((double)count / size > loadFactorThreshold) {
             resize();
         }
 
         int idx = hashFunction(key);
         int i = 0;
-        while (i < size) {  
+
+        while (i < size) {
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY || table[probeIdx] == DELETED) {
                 table[probeIdx] = key;
-                values[probeIdx] = value; // Store the value
                 count++;
                 return;
             } else if (table[probeIdx] == key) {
-                values[probeIdx] = value; // Update the value if key exists
+                std::cout << "Duplicate key insertion is not allowed" << std::endl;
                 return;
             }
             i++;
         }
+
+        std::cout << "Max probing limit reached!" << std::endl;
     }
 
     int search(int key) {
         int idx = hashFunction(key);
         int i = 0;
+
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY) {
                 return -1;  
             } else if (table[probeIdx] == key) {
-                return values[probeIdx]; // Return the corresponding value
+                return probeIdx;
             }
             i++;
         }
-        return -1;  
+        return -1;
     }
 
     void remove(int key) {
-        int idx = hashFunction(key);
-        int i = 0;
-        while (i < size) {
-            int probeIdx = (idx + i * i) % size;
-            if (table[probeIdx] == EMPTY) {
-                return; // Key not found
-            } else if (table[probeIdx] == key) {
-                table[probeIdx] = DELETED; // Mark as deleted
-                count--;
-                return;
-            }
-            i++;
+        int idx = search(key);
+        if (idx == -1) {
+            std::cout << "Element not found" << std::endl;
+            return;
         }
+        table[idx] = DELETED;
+        count--;
     }
 
     void printTable() {
@@ -116,7 +110,7 @@ public:
             if (table[i] == EMPTY || table[i] == DELETED) {
                 std::cout << "- ";
             } else {
-                std::cout << table[i] << ":" << values[i] << " "; // Print key:value pairs
+                std::cout << table[i] << " ";
             }
         }
         std::cout << std::endl;
