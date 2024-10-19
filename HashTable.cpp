@@ -66,6 +66,7 @@ public:
 
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
+
             if (table[probeIdx] == EMPTY) {
                 if (firstDeletedIdx != -1) {
                     table[firstDeletedIdx] = key;
@@ -94,6 +95,7 @@ public:
 
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
+
             if (table[probeIdx] == EMPTY) {
                 return -1;
             } else if (table[probeIdx] == key) {
