@@ -4,12 +4,12 @@
 
 class HashTable {
 private:
-    std::vector<int> table;     
-    int size;                   
-    int count;                 
-    int EMPTY;            
-    int DELETED;          
-    double loadFactorThreshold; 
+    std::vector<int> table;
+    int size;
+    int count;
+    int EMPTY;
+    int DELETED;
+    double loadFactorThreshold;
 
     int nextPrime(int n) {
         while (!isPrime(n)) {
@@ -49,9 +49,9 @@ private:
 
 public:
     HashTable(int initialSize)
-        : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) { 
-        size = nextPrime(initialSize);  
-        table = std::vector<int>(size, EMPTY);  
+        : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) {
+        size = nextPrime(initialSize);
+        table = std::vector<int>(size, EMPTY);
         count = 0;
     }
 
@@ -62,13 +62,13 @@ public:
 
         int idx = hashFunction(key);
         int i = 0;
-        int firstDeletedIdx = -1; // Track the first DELETED slot found
+        int firstDeletedIdx = -1;
 
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY) {
-                if (firstDeletedIdx != -1) { 
-                    table[firstDeletedIdx] = key; 
+                if (firstDeletedIdx != -1) {
+                    table[firstDeletedIdx] = key;
                 } else {
                     table[probeIdx] = key;
                 }
@@ -95,7 +95,7 @@ public:
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY) {
-                return -1;  
+                return -1;
             } else if (table[probeIdx] == key) {
                 return probeIdx;
             }
