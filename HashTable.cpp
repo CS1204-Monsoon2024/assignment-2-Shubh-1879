@@ -1,14 +1,22 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 class HashTable {
 private:
-    std::vector<int> table;
-    std::vector<bool> occupied;
-    std::vector<bool> deleted;
-    int size;
-    int count;
-    const double loadFactorThreshold = 0.8;
+    std::vector<int> table;     
+    int size;                   
+    int count;                 
+    int EMPTY;            
+    int DELETED;          
+    double loadFactorThreshold; 
+
+    int nextPrime(int n) {
+        while (!isPrime(n)) {
+            n++;
+        }
+        return n;
+    }
 
     bool isPrime(int n) {
         if (n <= 1) return false;
@@ -20,65 +28,49 @@ private:
         return true;
     }
 
-    int nextPrime(int n) {
-        while (!isPrime(n)) n++;
-        return n;
-    }
-
     int hashFunction(int key) {
         return key % size;
     }
 
-    int quadraticProbe(int key, int i) {
-        return (hashFunction(key) + i * i) % size;
-    }
-
     void resize() {
-        int newSize = nextPrime(size * 2);
+        int oldSize = size;
         std::vector<int> oldTable = table;
-        std::vector<bool> oldOccupied = occupied;
-        std::vector<bool> oldDeleted = deleted;
 
-        table = std::vector<int>(newSize, -1);
-        occupied = std::vector<bool>(newSize, false);
-        deleted = std::vector<bool>(newSize, false);
-        size = newSize;
+        size = nextPrime(2 * oldSize);
+        table = std::vector<int>(size, EMPTY);
         count = 0;
 
-        for (int i = 0; i < oldTable.size(); i++) {
-            if (oldOccupied[i] && !oldDeleted[i]) {
+        for (int i = 0; i < oldSize; i++) {
+            if (oldTable[i] != EMPTY && oldTable[i] != DELETED) {
                 insert(oldTable[i]);
             }
         }
     }
 
 public:
-    HashTable(int initialSize) {
-        size = nextPrime(initialSize);
-        table.resize(size, -1);
-        occupied.resize(size, false);
-        deleted.resize(size, false);
+    HashTable(int initialSize)
+        : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) { 
+        size = nextPrime(initialSize);  
+        table = std::vector<int>(size, EMPTY);  
         count = 0;
     }
 
     void insert(int key) {
-        if (static_cast<double>(count) / size > loadFactorThreshold) {
+        if ((double)count / size > loadFactorThreshold) {
             resize();
         }
 
-        if (search(key) != -1) {
-            std::cout << "Duplicate key insertion is not allowed" << std::endl;
-            return;
-        }
-
+        int idx = hashFunction(key);
         int i = 0;
+
         while (i < size) {
-            int idx = quadraticProbe(key, i);
-            if (!occupied[idx] || deleted[idx]) {
-                table[idx] = key;
-                occupied[idx] = true;
-                deleted[idx] = false;
+            int probeIdx = (idx + i * i) % size;
+            if (table[probeIdx] == EMPTY || table[probeIdx] == DELETED) {
+                table[probeIdx] = key;
                 count++;
+                return;
+            } else if (table[probeIdx] == key) {
+                std::cout << "Duplicate key insertion is not allowed" << std::endl;
                 return;
             }
             i++;
@@ -88,11 +80,16 @@ public:
     }
 
     int search(int key) {
+        int idx = hashFunction(key);
         int i = 0;
+
         while (i < size) {
-            int idx = quadraticProbe(key, i);
-            if (!occupied[idx] && !deleted[idx]) return -1;
-            if (table[idx] == key && !deleted[idx]) return idx;
+            int probeIdx = (idx + i * i) % size;
+            if (table[probeIdx] == EMPTY) {
+                return -1;  
+            } else if (table[probeIdx] == key) {
+                return probeIdx;
+            }
             i++;
         }
         return -1;
@@ -104,16 +101,17 @@ public:
             std::cout << "Element not found" << std::endl;
             return;
         }
-        deleted[idx] = true;
+        table[idx] = DELETED;
         count--;
     }
 
     void printTable() {
         for (int i = 0; i < size; i++) {
-            if (occupied[i] && !deleted[i])
-                std::cout << table[i] << " ";
-            else
+            if (table[i] == EMPTY || table[i] == DELETED) {
                 std::cout << "- ";
+            } else {
+                std::cout << table[i] << " ";
+            }
         }
         std::cout << std::endl;
     }
