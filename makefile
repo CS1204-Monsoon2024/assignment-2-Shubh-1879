@@ -1,7 +1,5 @@
 default: main.cpp
-	g++ -Wall main.cpp -o main.out
+	g++ -o main.out main.cpp
 
-run: main.out 
-	main.out 
 clean:
 	rm -f *.out
