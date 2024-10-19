@@ -32,16 +32,12 @@ private:
         return key % size;
     }
 
-    //dynamic resizing
     void resize() {
         int oldSize = size;
         std::vector<int> oldTable = table;
-
         size = nextPrime(2 * oldSize);
         table = std::vector<int>(size, EMPTY);
         count = 0;
-
-    
         for (int i = 0; i < oldSize; i++) {
             if (oldTable[i] != EMPTY && oldTable[i] != DELETED) {
                 insert(oldTable[i]);
@@ -54,7 +50,7 @@ public:
         : EMPTY(-1), DELETED(-2), loadFactorThreshold(0.8) { 
         size = nextPrime(initialSize);  
         table = std::vector<int>(size, EMPTY);  
-        count = 0;  //no elements inserted 
+        count = 0;  
     }
 
     void insert(int key) {
@@ -64,29 +60,22 @@ public:
 
         int idx = hashFunction(key);
         int i = 0;
-
-        while (i < size) {  // Allow probing up to the full size of the table
+        while (i < size) {  
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY || table[probeIdx] == DELETED) {
                 table[probeIdx] = key;
                 count++;
                 return;
             } else if (table[probeIdx] == key) {
-                std::cout << "Duplicate key insertion is not allowed" << std::endl;
                 return;
             }
             i++;
         }
-
-        // If we exhaust all attempts to insert
-        std::cout << "Max probing limit reached!" << std::endl;
     }
 
-    // Search function
     int search(int key) {
         int idx = hashFunction(key);
         int i = 0;
-
         while (i < size) {
             int probeIdx = (idx + i * i) % size;
             if (table[probeIdx] == EMPTY) {
@@ -99,18 +88,15 @@ public:
         return -1;  
     }
 
-    // Remove function
     void remove(int key) {
         int idx = search(key);
         if (idx == -1) {
-            std::cout << "Element not found" << std::endl;
             return;
         }
         table[idx] = DELETED;
         count--;
     }
 
-    // Print the hash table
     void printTable() {
         for (int i = 0; i < size; i++) {
             if (table[i] == EMPTY || table[i] == DELETED) {
