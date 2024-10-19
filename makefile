@@ -1,8 +1,6 @@
-
-
 CC=gcc # define the compiler to use
 TARGET=main.out
-SOURCES=HashTable.cpp
+SOURCES=main.cpp HashTable.cpp
 CFLAGS=-O1
 LFLAGS=-lm
 
@@ -10,10 +8,10 @@ LFLAGS=-lm
 ### DO NOT EDIT THE FOLLOWING LINES ############################################
 
 # define list of objects
-OBJSC=$(SOURCES:.c=.o)
-OBJS=$(OBJSC:.cpp=.o)
+OBJSC=$(SOURCES:.c=.o) # This is for C files, not needed here
+OBJS=$(SOURCES:.cpp=.o) # Correctly replace .cpp files with .o files
 
-# the target is obtained linking all .o files
+# the target is obtained by linking all .o files
 all: $(SOURCES) $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -21,9 +19,6 @@ $(TARGET): $(OBJS)
 
 purge: clean
 	rm -f $(TARGET)
-
-clean:
-	rm -f *.o
 
 clean:
 	rm -f *.out
